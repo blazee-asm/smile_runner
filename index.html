@@ -111,11 +111,15 @@
             let winWidth = window.innerWidth;
             let winHeight = window.innerHeight;
 
-            for (let i = 0; i < 20; i++) {
-                createRandomObject(i, winHeight / 2)
-            };
+            window.onload = () => {
+                for (let i = 0; i < 20; i++) {
+                    createRandomObject(i, winHeight / 2)
+                }
 
-            objects = _.cloneDeep(newObjects)
+                objects = _.cloneDeep(newObjects)
+
+                requestAnimationFrame(update)
+            }
 
             function end() {
                 alert("Game over. :C")
