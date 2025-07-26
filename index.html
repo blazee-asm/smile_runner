@@ -67,15 +67,15 @@
                 return true;
             }
 
-            function createRandomObject(yPos) {
+            function createRandomObject(yPos, dist) {
                 let newObjectData = getRandomChoice(objData)
                 let newObject = document.createElement("img")
                 let lane = getRandomInt(1, 3)
-                newObject.style = `top: ${yPos * 400}px; left: ${lane * 25}%; width: 10%; height: auto;`
+                newObject.style = `top: ${yPos * dist}px; left: ${lane * 25}%; width: 10%; height: auto;`
                 newObject.style.position = "absolute";
                 newObject.style.transform = "translate(-50%, -50%)"
                 newObject.src = newObjectData.name
-                let objToAdd = {"obj": newObject, "x": lane, "y": yPos * 400, "tag": newObjectData.type}
+                let objToAdd = {"obj": newObject, "x": lane, "y": yPos * dist, "tag": newObjectData.type}
                 newObjects.push(objToAdd)
                 document.body.appendChild(newObject)
                 return objToAdd
@@ -154,7 +154,7 @@
 
                     if (objectY > 105 || deleteThis) {
                         document.body.removeChild(element.obj)
-                        createRandomObject(currentY)
+                        createRandomObject(currentY, winHeight / 2)
                         currentY++
                     } else {
                         newObjects.push(element)
@@ -163,7 +163,7 @@
 
                 if (!arraysEqual(objects, newObjects)) objects = _.cloneDeep(newObjects)
 
-                y += dt * 300
+                y += dt * (winHeight / 3)
 
                 updId = requestAnimationFrame(update)
             }
