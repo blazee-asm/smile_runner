@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <style>
+            #player {
+                position: absolute;
+                top: 90%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 10%;
+                height: auto;
+            }
+
+            #leftBtn { position: absolute; top: 90%; left: 10%; transform: translate(-50%, -50%); }
+            #slideBtn { position: absolute; top: 90%; left: 50%; transform: translate(-50%, -50%); }
+            #rightBtn { position: absolute; top: 90%; left: 90%; transform: translate(-50%, -50%); }
+        </style>
+        <title>runner game! :D</title>
+    </head>
+
+    <body>
+        <p id="coins">0 coins</p>
+        <img id="player" src="player.png" />
+        <button id="leftBtn" onclick="dec()">⬅ Left</button>
+        <button id="slideBtn" onclick="slide()">⬇Slide⬇</button>
+        <button id="rightBtn" onclick="inc()">Right ➡</button>
+        <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+        <script>
+
+            function dec() {
+                if (x > 1) {
+                    x--
+                }
+            }
+
+            function inc() {
+                if (x < 3) {
+                    x++
+                }
+            }
+
+            function slide() {
+                if (sliding) return
+                sliding = true
+                player.src = "player_slide.png"
+                setTimeout(() => {
+                    sliding = false
+                    player.src = "player.png"
+                }, 900)
+            }
+
+            function getRandomInt(min, max) {
+                min = Math.ceil(min)
+                max = Math.floor(max)
+                return Math.floor(Math.random() * (max - min + 1)) + min
+            }
+
+            function getRandomChoice(array) {
+                return array[Math.floor(Math.random() * array.length)]
+            }
+
+            function arraysEqual(arr1, arr2) {
+                if (arr1.length !== arr2.length) return false;
+                for (let i = 0; i < arr1.length; i++) {
+                    if (arr1[i] !== arr2[i]) return false;
+                }
+                return true;
+            }
+
+            function createRandomObject(yPos) {
+                let newObjectData = getRandomChoice(objData)
+                let newObject = document.createElement("img")
+                let lane = getRandomInt(1, 3)
+                newObject.style = `top: ${yPos * 400}px; left: ${lane * 25}%; width: 10%; height: auto;`
+                newObject.style.position = "absolute";
+                newObject.style.transform = "translate(-50%, -50%)"
+                newObject.src = newObjectData.name
+                let objToAdd = {"obj": newObject, "x": lane, "y": yPos * 400, "tag": newObjectData.type}
+                newObjects.push(objToAdd)
+                document.body.appendChild(newObject)
+                return objToAdd
+            }
+
+            document.addEventListener("keydown", (event) => {
+                switch (event.key) {
+                    case "ArrowLeft":
+                        dec()
+                        break
+                    case "ArrowRight":
+                        inc()
+                        break
+                    case "ArrowDown":
+                        event.preventDefault()
+                        slide()
+                        break
+                }
+            })
+
+            const objData = [{"name": "fence.png", "type": "slideable"}, {"name": "boulder.png", "type": "unbreakable"}]
+            const player = document.getElementById("player")
+
+            let updId
+            let sliding = false
+            let [x, y] = [2, 0]
+            let lastTime = performance.now()
+            let objects = []
+            let newObjects = []
+            let currentY = 20
+            let playerCoins = 0
+
+            for (let i = 0; i < 20; i++) {
+                createRandomObject(i)
+            };
+
+            objects = _.cloneDeep(newObjects)
+
+            function end() {
+                alert("Game over. :C")
+
+                cancelAnimationFrame(updId)
+            }
+            
+            function update(time) {
+                let winWidth = window.innerWidth;
+                let winHeight = window.innerHeight;
+
+                let dt = (time - lastTime) / 1000
+                lastTime = time
+                player.style.left = x * 25 + "%"
+
+                newObjects = []
+                
+                for (let i = 0; i < objects.length; i++) {
+                    let deleteThis = false
+                    let element = objects[i]
+                    let relativeY = y - element.y // px
+                    let objectY = (relativeY / winHeight) * 100 // %
+
+                    element.obj.style.top = objectY + "%"
+
+                    if (80 < objectY && objectY < 95 && x === element.x) {
+                        switch (element.tag) {
+                            case "unbreakable":
+                                end()
+                                break
+                            case "slideable":
+                                if (!sliding) end()
+                                break
+                            case "+1coins":
+                                coins++
+                                deleteThis = true
+                        }
+                    }
+
+                    if (objectY > 105 || deleteThis) {
+                        document.body.removeChild(element.obj)
+                        createRandomObject(currentY)
+                        currentY++
+                    } else {
+                        newObjects.push(element)
+                    }
+                };
+
+                if (!arraysEqual(objects, newObjects)) objects = _.cloneDeep(newObjects)
+
+                y += dt * 300
+
+                updId = requestAnimationFrame(update)
+            }
+
+            requestAnimationFrame(update)
+        </script>
+    </body>
+</html>
