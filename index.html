@@ -98,6 +98,7 @@
 
             const objData = [{"name": "fence.png", "type": "slideable"}, {"name": "boulder.png", "type": "unbreakable"}]
             const player = document.getElementById("player")
+            const coinsText = document.getElementById("coins")
 
             let updId
             let sliding = false
@@ -107,9 +108,11 @@
             let newObjects = []
             let currentY = 20
             let playerCoins = 0
+            let winWidth = window.innerWidth;
+            let winHeight = window.innerHeight;
 
             for (let i = 0; i < 20; i++) {
-                createRandomObject(i)
+                createRandomObject(i, winHeight / 2)
             };
 
             objects = _.cloneDeep(newObjects)
@@ -121,8 +124,8 @@
             }
             
             function update(time) {
-                let winWidth = window.innerWidth;
-                let winHeight = window.innerHeight;
+                winWidth = window.innerWidth;
+                winHeight = window.innerHeight;
 
                 let dt = (time - lastTime) / 1000
                 lastTime = time
@@ -147,8 +150,10 @@
                                 if (!sliding) end()
                                 break
                             case "+1coins":
-                                coins++
+                                playerCoins++
+                                coinsText.innerText = playerCoins === 1 ? `${playerCoins} coins` : "1 coin"
                                 deleteThis = true
+                                break
                         }
                     }
 
